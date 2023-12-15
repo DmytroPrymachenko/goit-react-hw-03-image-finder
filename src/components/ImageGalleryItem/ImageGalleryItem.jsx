@@ -3,7 +3,7 @@ import { ImageGalleryItemLI, ItemPhoto } from './ImageGalleryItemStaled';
 
 export default class ImageGalleryItem extends Component {
   photoClick = e => {
-    this.props.openModal();
+    this.props.openModal(this.props.largeImageURL);
   };
 
   render() {

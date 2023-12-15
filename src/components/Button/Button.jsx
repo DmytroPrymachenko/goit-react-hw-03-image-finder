@@ -2,6 +2,6 @@ import React, { Component } from 'react';
 
 export default class Button extends Component {
   render() {
-    return <div>Button</div>;
+    return <button onClick={this.props.getPage}>Button</button>;
   }
 }

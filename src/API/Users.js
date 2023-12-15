@@ -10,6 +10,6 @@ export const getAllPhoto = async (q = '', page = 1) => {
       page,
     },
   });
-  console.log(data);
+
   return data;
 };

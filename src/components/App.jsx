@@ -5,6 +5,7 @@ import ImageGallery from './ImageGallery/ImageGallery';
 import ImageGalleryItem from './ImageGalleryItem/ImageGalleryItem';
 import Button from './Button/Button';
 import Modal from './Modal/Modal';
+import Loader from './Loader/Loader';
 
 export class App extends Component {
   state = {
@@ -12,18 +13,29 @@ export class App extends Component {
     modal: false,
     search: '',
     page: 1,
+    url: '',
+    loading: false,
   };
 
-  componentDidMount() {
-    this.fetchPhotos();
-  }
+  // componentDidMount() {
+  //   this.fetchPhotos();
+  // }
 
   fetchPhotos = async (q = '', page = 1) => {
     try {
+      this.setState({ loading: true });
       const { hits } = await getAllPhoto(q, page);
-      this.setState({ photos: hits });
+      if (page === 1) {
+        this.setState({ photos: hits });
+      } else {
+        this.setState(prev => ({
+          photos: [...prev.photos, ...hits],
+        }));
+      }
     } catch (error) {
       console.error('Error fetching photos:', error);
+    } finally {
+      this.setState({ loading: false });
     }
   };
 
@@ -31,7 +43,7 @@ export class App extends Component {
     this.setState({ page: 1, search: value });
   };
 
-  getPage = prev => {
+  getPage = () => {
     this.setState(prev => ({ page: prev.page + 1 }));
   };
   // Новва частина
@@ -40,9 +52,13 @@ export class App extends Component {
     if (prevState.search !== this.state.search) {
       this.fetchPhotos(this.state.search);
     }
+    if (prevState.page !== this.state.page) {
+      this.fetchPhotos(this.state.search, this.state.page);
+    }
   }
-  openModal = () => {
-    this.setState({ modal: true });
+  openModal = url => {
+    this.setState({ url, modal: true });
+    window.addEventListener('keydown', this.onWindowCloseModal);
   };
 
   closeModal = () => {
@@ -56,17 +72,17 @@ export class App extends Component {
   };
 
   render() {
-    console.log(this.state);
-    const { photos } = this.state;
+    const { photos, modal, loading } = this.state;
     return (
       <div>
-        <Modal
-          closeModal={this.closeModal}
-          largeImageURL={photos.largeImageURL}
-        />
+        {modal && (
+          <Modal closeModal={this.closeModal} urlModal={this.state.url} />
+        )}
+
         <Searchbar getSearch={this.getSearch}></Searchbar>
+        {loading && <Loader />}
         <ImageGallery>
-          {photos.length > 0 ? (
+          {photos.length > 0 &&
             photos.map(el => (
               <ImageGalleryItem
                 openModal={this.openModal}
@@ -74,12 +90,9 @@ export class App extends Component {
                 webformatURL={el.webformatURL}
                 largeImageURL={el.largeImageURL}
               />
-            ))
-          ) : (
-            <p>Not found</p>
-          )}
+            ))}
         </ImageGallery>
-        <Button getPage={this.getPage}></Button>
+        {photos.length >= 12 && <Button getPage={this.getPage}></Button>}
       </div>
     );
   }
