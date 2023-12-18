@@ -6,6 +6,7 @@ import ImageGalleryItem from './ImageGalleryItem/ImageGalleryItem';
 import Button from './Button/Button';
 import Modal from './Modal/Modal';
 import Loader from './Loader/Loader';
+import { DivApp } from './AppStaled';
 
 export class App extends Component {
   state = {
@@ -74,7 +75,7 @@ export class App extends Component {
   render() {
     const { photos, modal, loading } = this.state;
     return (
-      <div>
+      <DivApp>
         {modal && (
           <Modal closeModal={this.closeModal} urlModal={this.state.url} />
         )}
@@ -93,7 +94,7 @@ export class App extends Component {
             ))}
         </ImageGallery>
         {photos.length >= 12 && <Button getPage={this.getPage}></Button>}
-      </div>
+      </DivApp>
     );
   }
 }
